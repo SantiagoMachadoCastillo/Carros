@@ -397,6 +397,64 @@ trackPlane.receiveShadow = true;
 
 scene.add(trackPlane);
 
+// Cargar coches adicionales `car_1` y `car_2` con sus texturas y colocarlos en escena
+function loadCarModel(filePath, texturePath, position, targetSize = 1) {
+  const texture = texturePath ? loader.load(texturePath) : null;
+
+  fbxLoader.load(
+    filePath,
+    (fbx) => {
+      fbx.traverse((child) => {
+        if ( child.isMesh ) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+
+          if ( Array.isArray(child.material) ) {
+            child.material = child.material.map((m) => {
+              const mat = m.clone();
+              if ( texture ) mat.map = texture;
+              mat.needsUpdate = true;
+              return mat;
+            });
+          } else if ( child.material ) {
+            const mat = child.material.clone();
+            if ( texture ) mat.map = texture;
+            mat.needsUpdate = true;
+            child.material = mat;
+          }
+        }
+      });
+
+      const boundingBox = new THREE.Box3().setFromObject(fbx);
+      const size = boundingBox.getSize(new THREE.Vector3());
+      const maxDimension = Math.max(size.x, size.y, size.z) || 1;
+      const scale = targetSize / maxDimension;
+
+      fbx.scale.setScalar(scale);
+
+      const scaledBox = new THREE.Box3().setFromObject(fbx);
+      const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+
+      fbx.position.x -= scaledCenter.x;
+      fbx.position.z -= scaledCenter.z;
+      fbx.position.y -= scaledBox.min.y;
+
+      // Aplicar la posición solicitada (offset desde el centro)
+      fbx.position.add(new THREE.Vector3(position.x || 0, position.y || 0, position.z || 0));
+
+      scene.add(fbx);
+    },
+    undefined,
+    (err) => {
+      console.error('No se pudo cargar', filePath, err);
+    }
+  );
+}
+
+// Posicionar dos coches en la escena
+loadCarModel('car_1.fbx', 'Car Texture 1.png', { x: -6, y: 0, z: 6 }, 1.2);
+loadCarModel('car_2.fbx', 'Car Texture 2.png', { x: 6, y: 0, z: 6 }, 1.2);
+
 // Carga simple de FBX y creación de instancias (sin clase)
 // Crear cubos placeholders en las posiciones (devuelve array de meshes)
 function createPlaceholderCubes(key, positions, size = 0.8, baseY = 0) {
