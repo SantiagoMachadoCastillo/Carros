@@ -787,6 +787,6 @@ const speedKmH =
     Math.abs(currentSpeed / maxSpeed) * maxKmH;
 
 speedDisplay.textContent =
-    `${Math.round(speedKmH)} km/h`;
+    `${Math.abs(currentSpeed).toFixed(2)} u/s`;
 
 }
