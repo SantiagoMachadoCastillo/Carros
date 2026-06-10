@@ -679,6 +679,23 @@ developerViewButton.addEventListener('click', () => {
 document.body.appendChild(developerViewButton);
 updateDeveloperViewButton(developerViewButton);
 
+const speedDisplay = document.createElement('div');
+
+speedDisplay.style.position = 'fixed';
+speedDisplay.style.bottom = '20px';
+speedDisplay.style.right = '20px';
+speedDisplay.style.padding = '10px 15px';
+speedDisplay.style.background = 'rgba(0,0,0,0.7)';
+speedDisplay.style.color = 'white';
+speedDisplay.style.fontSize = '24px';
+speedDisplay.style.fontWeight = 'bold';
+speedDisplay.style.borderRadius = '10px';
+speedDisplay.style.fontFamily = 'Arial';
+
+speedDisplay.textContent = '0 km/h';
+
+document.body.appendChild(speedDisplay);
+
 renderer.setAnimationLoop( animate );
 
 function animate( time ) {
@@ -763,5 +780,13 @@ function animate( time ) {
   //cube.rotation.y = time / 1000;
 
   renderer.render( scene, camera );
+
+  const maxKmH = 180; // velocidad máxima mostrada
+
+const speedKmH =
+    Math.abs(currentSpeed / maxSpeed) * maxKmH;
+
+speedDisplay.textContent =
+    `${Math.round(speedKmH)} km/h`;
 
 }
